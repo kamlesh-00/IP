@@ -1,0 +1,56 @@
+@media screen and (min-width: 320px) {
+  .centered{
+    padding-top: 20%;
+    text-align: center;
+  }
+  .home-logo{
+    width: 20%;
+    height: 20%;
+  }
+  .title{
+    font-size: 2rem;
+    padding: 8% 8%;
+  }
+  .form-signin{
+    padding: 20% 2%;
+    text-align: center;
+  }
+}
+@media screen and (min-width: 960px) {
+  .centered{
+    padding-top: 5%;
+    text-align: center;
+  }
+  .home-logo{
+    width: 20%;
+    height: 20%;
+  }
+  .title{
+    font-size: 3rem;
+    padding: 2% 2%;
+  }
+  .form-signin{
+    padding: 7% 40%;
+    text-align: center;
+  }
+}
+
+.logout{
+  position: fixed;
+  top: 1%;
+  right: 1%;
+  margin-bottom: 5%;
+  z-index: 1;
+}
+
+.box {
+  margin: 50px auto;
+  background: white;
+  border-radius: 5px;
+  box-shadow: 5px 5px 15px -5px rgba(0, 0, 0, 0.3);
+  padding: 2%;
+}
+
+.center{
+  text-align: center;
+}
