@@ -1,5 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import axios from "axios";
 
 class Register extends React.Component {
   constructor(props) {
@@ -33,8 +34,19 @@ class Register extends React.Component {
         this.state.middlename +
         " " +
         this.state.lastname,
+      username: this.state.registration_number,
+      college_name: this.state.college,
+      course_name: this.state.coursename,
+      academic_year: this.state.academic_year,
+      password: this.state.password,
+      department_name: this.state.department_name,
     };
-    axios.post("/api/authenticate/register");
+    axios
+      .post("/api/student/register", userDetail)
+      .then()
+      .catch((err) => {
+        console.log(err);
+      });
   }
 
   render() {
@@ -80,6 +92,15 @@ class Register extends React.Component {
           onChange={this.handleChange}
         />
         {/*College name selector */}
+        <input
+          type="text"
+          className="form-control mb-2"
+          placeholder="Department Name"
+          required=""
+          autofocus=""
+          name="coursename"
+          onChange={this.handleChange}
+        />
         <input
           type="text"
           className="form-control mb-2"
