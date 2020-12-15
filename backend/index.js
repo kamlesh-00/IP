@@ -1,10 +1,14 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
+const cors = require("cors");
 
 const app = express();
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
+
+app.use(cors());
+app.use(express.static("build"));
 
 const port = 5000 || process.env.PORT;
 
@@ -63,8 +67,12 @@ app.get("/api/isAuthenticated", (req, res) => {
       user: req.user,
     });
   } else {
-    res.status(401).json({ success: false, message: "Unauthorized" });
+    res.status(200).json({ success: false, message: "Unauthorized" });
   }
+});
+
+app.get("/home", (req, res) => {
+  res.redirect("/home");
 });
 
 app.post("/api/addAdmin", (req, res) => {
@@ -119,8 +127,13 @@ app.post("/api/student/register", (req, res) => {
     course_name: req.body.course_name,
     academic_year: req.body.academic_year,
     college_name: req.body.college_name,
+    department_name: req.body.department_name,
     type: "student",
   });
+  User.find({ name: req.body.college_name }, (err, res) => {
+    details.college_id = res[0].username;
+  }).catch((err) => console.log(err));
+
   User.register(details, req.body.password, (err, user) => {
     if (err) {
       res.json({
@@ -129,7 +142,7 @@ app.post("/api/student/register", (req, res) => {
         err,
       });
     } else {
-      res.json({ success: true, message: "Your account has been saved" });
+      passport.authenticate("local", { successRedirect: "/home" });
     }
   });
 });
@@ -139,7 +152,10 @@ app.post("/api/login", (req, res) => {
     failureRedirect: "/unauthorized",
     successRedirect: "/home",
   })(req, res, () => {
-    return res.status(200).json({ message: "Authenticated Successfully" });
+    console.log("Here");
+    return res
+      .status(200)
+      .json({ success: true, message: "Authenticated Successfully" });
   });
 });
 
@@ -175,7 +191,9 @@ app.get("/api/getComplaints", (req, res) => {
     if (req.user.type == "student") {
       User.find({ _id: req.user._id }, (err, result) => {
         if (!err) {
-          res.status(200).json(result[0].complaints);
+          res
+            .status(200)
+            .json({ id: req.user._id, complaints: result[0].complaints });
         }
       }).catch((err) => console.log(err));
     } else if (req.user.type == "college") {

@@ -11,22 +11,37 @@ class Register extends React.Component {
       lastname: "",
       coursename: "",
       academic_year: "",
-      registration_number: "",
       college: "",
       email: "",
       password: "",
+      collegeDetails: [],
     };
     this.handleSubmit = this.handleSubmit.bind(this);
     this.handleChange = this.handleChange.bind(this);
   }
 
+  collegeDetails = [];
+
   handleChange(event) {
     this.setState({
-      [event.target]: event.target.value,
+      [event.target.name]: event.target.value,
     });
+    console.log(this.state);
   }
 
-  handleSubmit() {
+  componentWillMount() {
+    axios
+      .get("/api/getColleges")
+      .then((res) => {
+        this.setState({
+          collegeDetails: res.data,
+        });
+      })
+      .catch((err) => console.log(err));
+  }
+
+  handleSubmit(event) {
+    event.preventDefault();
     const userDetail = {
       name:
         this.state.firstname +
@@ -34,19 +49,25 @@ class Register extends React.Component {
         this.state.middlename +
         " " +
         this.state.lastname,
-      username: this.state.registration_number,
-      college_name: this.state.college,
+      username: this.state.id,
       course_name: this.state.coursename,
+      college_name: this.state.collegename,
       academic_year: this.state.academic_year,
       password: this.state.password,
       department_name: this.state.department_name,
     };
     axios
       .post("/api/student/register", userDetail)
-      .then()
+      .then((res) => {
+        console.log(res.data);
+      })
       .catch((err) => {
         console.log(err);
       });
+  }
+
+  collegeInput(ele) {
+    return <option>{ele.name}</option>;
   }
 
   render() {
@@ -59,8 +80,8 @@ class Register extends React.Component {
           type="text"
           className="form-control mb-2"
           placeholder="Enter First Name"
-          required="true"
-          autofocus=""
+          required={true}
+          autoFocus={true}
           name="firstname"
           onChange={this.handleChange}
         />
@@ -68,8 +89,6 @@ class Register extends React.Component {
           type="text"
           className="form-control mb-2"
           placeholder="Enter Middle Name"
-          required=""
-          autofocus=""
           name="middlename"
           onChange={this.handleChange}
         />
@@ -77,8 +96,6 @@ class Register extends React.Component {
           type="text"
           className="form-control mb-2"
           placeholder="Enter Last Name"
-          required=""
-          autofocus=""
           name="lastname"
           onChange={this.handleChange}
         />
@@ -86,18 +103,20 @@ class Register extends React.Component {
           type="text"
           className="form-control mb-2"
           placeholder="Course Name"
-          required=""
-          autofocus=""
           name="coursename"
           onChange={this.handleChange}
         />
-        {/*College name selector */}
+        <select
+          className="form-control mb-2"
+          name="collegename"
+          onChange={this.handleChange}>
+          <option selected>Pick your college</option>
+          {this.state.collegeDetails.map(this.collegeInput)}
+        </select>
         <input
           type="text"
           className="form-control mb-2"
           placeholder="Department Name"
-          required=""
-          autofocus=""
           name="coursename"
           onChange={this.handleChange}
         />
@@ -105,26 +124,20 @@ class Register extends React.Component {
           type="text"
           className="form-control mb-2"
           placeholder="Academic Year(eg: 2018-2020)"
-          required=""
-          autofocus=""
-          name="academicyear"
+          name="academic_year"
           onChange={this.handleChange}
         />
         <input
           type="text"
           className="form-control mb-2"
           placeholder="Registration Id"
-          required=""
-          autofocus=""
           name="id"
           onChange={this.handleChange}
         />
         <input
           type="password"
-          id="password"
           className="form-control mb-3"
           placeholder="Password"
-          required=""
           name="password"
           onChange={this.handleChange}
         />

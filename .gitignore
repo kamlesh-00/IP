@@ -4,5 +4,6 @@
 
 # production
 /frontend/build
+/backend/build
 
 /backend/.env
