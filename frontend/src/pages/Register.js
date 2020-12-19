@@ -1,5 +1,5 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, Redirect, useHistory } from "react-router-dom";
 import axios from "axios";
 
 class Register extends React.Component {
@@ -15,6 +15,8 @@ class Register extends React.Component {
       email: "",
       password: "",
       collegeDetails: [],
+      error: "",
+      redirect: false,
     };
     this.handleSubmit = this.handleSubmit.bind(this);
     this.handleChange = this.handleChange.bind(this);
@@ -29,7 +31,22 @@ class Register extends React.Component {
     console.log(this.state);
   }
 
+  isAuthorized() {
+    axios
+      .get("/api/isAuthenticated")
+      .then((response) => {
+        return response.data.success;
+      })
+      .catch((err) => console.log(err.response));
+  }
+
   componentWillMount() {
+    if (this.isAuthorized()) {
+      this.setState({
+        redirect: true,
+      });
+    }
+
     axios
       .get("/api/getColleges")
       .then((res) => {
@@ -37,7 +54,7 @@ class Register extends React.Component {
           collegeDetails: res.data,
         });
       })
-      .catch((err) => console.log(err));
+      .catch((err) => console.log(err.response));
   }
 
   handleSubmit(event) {
@@ -62,7 +79,7 @@ class Register extends React.Component {
         console.log(res.data);
       })
       .catch((err) => {
-        console.log(err);
+        console.log(err.response);
       });
   }
 
@@ -71,6 +88,9 @@ class Register extends React.Component {
   }
 
   render() {
+    if (this.state.redirect) {
+      return <Redirect to="/home" />;
+    }
     return (
       <form className="form-signin" onSubmit={this.handleSubmit}>
         <h1 className="h3 mb-5 font-weight-normal">

@@ -12,20 +12,6 @@ import Register from "./pages/Register";
 import StudentHome from "./pages/StudentHome";
 import Unauthorized from "./pages/Unauthorized";
 
-import axios from "axios";
-
-function AuthRoute(props) {
-  function isAuthorized() {
-    axios.get("/api/isAuthenticated").then((response) => {
-      return response.data.success;
-    });
-  }
-
-  if (!isAuthorized()) {
-    return <Route path={props.path} component={props.component} />;
-  } else return <Route path="/home" component={StudentHome} />;
-}
-
 class App extends React.Component {
   render() {
     return (
@@ -33,10 +19,10 @@ class App extends React.Component {
         <Router>
           <Switch>
             <Route exact path="/" component={Home} />
-            <AuthRoute exact path="/register" component={Register} />
-            <AuthRoute path="/login" component={Login} />
-            <AuthRoute path="/home" component={StudentHome} />
-            <AuthRoute path="/unauthorized" component={Unauthorized} />
+            <Route exact path="/register" component={Register} />
+            <Route exact path="/login" component={Login} />
+            <Route exact path="/home" component={StudentHome} />
+            <Route exact path="/unauthorized" component={Unauthorized} />
             <Redirect to="/" />
           </Switch>
         </Router>

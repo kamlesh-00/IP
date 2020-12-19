@@ -6,13 +6,13 @@ function ComplaintDetails(props) {
     return (
       <Card>
         <Card.Header>
-          <Accordion.Toggle as={Button} variant="link" eventKey="0">
-            id: {ele._id} &nbsp;&nbsp; Category: {ele.category}
+          <Accordion.Toggle as={Button} variant="link" eventKey={ele._id}>
+            id: {ele._id} &nbsp;&nbsp; Level: {ele.level}
           </Accordion.Toggle>
         </Card.Header>
-        <Accordion.Collapse eventKey="0">
+        <Accordion.Collapse eventKey={ele._id}>
           <Card.Body>
-            <b>Level: {ele.level}</b>
+            <b>Category: {ele.category}</b>
             <br />
             <p>{ele.complaintDetail} </p>
             <b>Status: </b>
@@ -23,9 +23,7 @@ function ComplaintDetails(props) {
     );
   }
 
-  return (
-    <Accordion defaultActiveKey="0">{props.complaints.map(a())}</Accordion>
-  );
+  return <Accordion defaultActiveKey="0">{props.complaints.map(a)}</Accordion>;
 }
 
 export default ComplaintDetails;

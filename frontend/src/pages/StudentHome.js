@@ -1,6 +1,7 @@
 import axios from "axios";
 import React, { Component } from "react";
 import { Button } from "react-bootstrap";
+import { Redirect } from "react-router-dom";
 import ComplaintDetails from "../utils/ComplaintDetails";
 import ComplaintForm from "../utils/ComplaintForm";
 
@@ -8,42 +9,60 @@ class StudentHome extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      complaints: null,
+      complaints: [],
+      logout: false,
     };
-    this.handleComplaintSubmit = this.handleComplaintSubmit.bind.this();
+    this.handleLogout = this.handleLogout.bind(this);
+    this.handleComplaintSubmit = this.handleComplaintSubmit.bind(this);
   }
 
-  handleComplaintSubmit() {
+  handleComplaintSubmit = () => {
+    console.log("here");
     axios
       .get("/api/getComplaints")
       .then((res) => {
-        this.setState({ complaints: res.data });
+        console.log("Res data: ", res);
+        this.setState({ complaints: res.data.complaints });
       })
       .catch((err) => console.log(err));
-  }
+  };
 
-  componentDidMount() {
+  componentWillMount() {
     axios
       .get("/api/getComplaints")
       .then((res) => {
-        this.setState({ complaints: res.data });
+        this.setState({ complaints: res.data.complaints });
       })
-      .catch((err) => console.log(err));
+      .catch((err) => console.log(err.response));
+  }
+
+  handleLogout() {
+    axios
+      .get("/api/logout")
+      .then((res) => {
+        if (res.data.success) {
+          this.setState({
+            logout: true,
+          });
+        }
+      })
+      .catch((err) => console.log(err.response));
   }
 
   render() {
+    if (this.state.logout) {
+      return <Redirect to="/" />;
+    }
     return (
       <React.Fragment>
-        <Button color="primary" className="logout">
+        <Button color="primary" className="logout" onClick={this.handleLogout}>
           {"Logout"}
         </Button>
         <div className="container">
           <div className="row">
             <div className="col-sm-4">
               <div className="box">
-                <ComplaintForm
-                  handleComplaintSubmit={this.handleComplaintSubmit}
-                />
+                <ComplaintForm onComplaintSubmit={this.handleComplaintSubmit} />
               </div>
             </div>
             <div className="col-sm-8">

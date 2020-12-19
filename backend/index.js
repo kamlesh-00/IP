@@ -8,7 +8,6 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
 app.use(cors());
-app.use(express.static("build"));
 
 const port = 5000 || process.env.PORT;
 
@@ -71,10 +70,6 @@ app.get("/api/isAuthenticated", (req, res) => {
   }
 });
 
-app.get("/home", (req, res) => {
-  res.redirect("/home");
-});
-
 app.post("/api/addAdmin", (req, res) => {
   if (req.isAuthenticated() && req.user.type == "admin") {
     let newAdmin = new User({
@@ -92,8 +87,6 @@ app.post("/api/addAdmin", (req, res) => {
         res.json({ success: true, message: "Your account has been saved" });
       }
     });
-  } else {
-    res.redirect("/unauthorized");
   }
 });
 
@@ -115,8 +108,6 @@ app.post("/api/admin/addCollege", (req, res) => {
         res.json({ success: true, message: "Your account has been saved" });
       }
     });
-  } else {
-    res.redirect("/unauthorized");
   }
 });
 
@@ -142,18 +133,18 @@ app.post("/api/student/register", (req, res) => {
         err,
       });
     } else {
-      passport.authenticate("local", { successRedirect: "/home" });
+      passport.authenticate("local")(req, res, () => {
+        res
+          .status(200)
+          .json({ success: true, message: "Authenticated Successfully" });
+      });
     }
   });
 });
 
 app.post("/api/login", (req, res) => {
-  passport.authenticate("local", {
-    failureRedirect: "/unauthorized",
-    successRedirect: "/home",
-  })(req, res, () => {
-    console.log("Here");
-    return res
+  passport.authenticate("local")(req, res, () => {
+    res
       .status(200)
       .json({ success: true, message: "Authenticated Successfully" });
   });
@@ -181,14 +172,13 @@ app.post("/api/addComplaint", (req, res) => {
       }
     ).catch((err) => console.log(err));
     res.status(200).json({ message: "Submitted Successfully" });
-  } else {
-    res.redirect("/unauthorized");
   }
 });
 
 app.get("/api/getComplaints", (req, res) => {
   if (req.isAuthenticated()) {
     if (req.user.type == "student") {
+      console.log("getComplaintsStudent");
       User.find({ _id: req.user._id }, (err, result) => {
         if (!err) {
           res
@@ -197,6 +187,7 @@ app.get("/api/getComplaints", (req, res) => {
         }
       }).catch((err) => console.log(err));
     } else if (req.user.type == "college") {
+      console.log("getComplaintsCollege");
       User.find({ college_id: req.user.username }, (err, result) => {
         var toSend = [];
         if (!err) {
@@ -207,6 +198,7 @@ app.get("/api/getComplaints", (req, res) => {
         res.status(200).json({ complaints: toSend });
       }).catch((err) => console.log(err));
     } else {
+      console.log("getComplaintsAdmin");
       User.find({}, (err, result) => {
         var toSend = [];
         if (!err) {
@@ -219,14 +211,18 @@ app.get("/api/getComplaints", (req, res) => {
         res.status(200).json({ complaints: toSend });
       }).catch((err) => console.log(err));
     }
-  } else {
-    res.redirect("/unauthorized");
   }
 });
 
 app.get("/api/logout", (req, res) => {
   req.logout();
-  res.json("/");
+  res.status(200).json({ success: true, message: "Log out successfully" });
+});
+
+app.use(express.static("./build"));
+
+app.get("*", (req, res) => {
+  res.redirect("/");
 });
 
 //Connection
