@@ -1,6 +1,7 @@
 import React from "react";
-import { Link, Redirect, useHistory } from "react-router-dom";
+import { Link, Redirect } from "react-router-dom";
 import axios from "axios";
+import { Alert } from "react-bootstrap";
 
 class Register extends React.Component {
   constructor(props) {
@@ -31,22 +32,7 @@ class Register extends React.Component {
     console.log(this.state);
   }
 
-  isAuthorized() {
-    axios
-      .get("/api/isAuthenticated")
-      .then((response) => {
-        return response.data.success;
-      })
-      .catch((err) => console.log(err.response));
-  }
-
   componentWillMount() {
-    if (this.isAuthorized()) {
-      this.setState({
-        redirect: true,
-      });
-    }
-
     axios
       .get("/api/getColleges")
       .then((res) => {
@@ -76,7 +62,15 @@ class Register extends React.Component {
     axios
       .post("/api/student/register", userDetail)
       .then((res) => {
-        console.log(res.data);
+        if (!res.data.success) {
+          this.setState({
+            error: "Account already exists with this registration id",
+          });
+        } else if (res.data.success) {
+          this.setState({
+            redirect: true,
+          });
+        }
       })
       .catch((err) => {
         console.log(err.response);
@@ -90,6 +84,16 @@ class Register extends React.Component {
   render() {
     if (this.state.redirect) {
       return <Redirect to="/home" />;
+    }
+    const errors = this.state.error;
+    function alert() {
+      if (errors === "") return null;
+      else
+        return (
+          <Alert variant="danger" className="mt-5">
+            {errors}
+          </Alert>
+        );
     }
     return (
       <form className="form-signin" onSubmit={this.handleSubmit}>
@@ -164,6 +168,7 @@ class Register extends React.Component {
         <button className="btn btn-lg btn-primary btn-block" type="submit">
           {"Register"}
         </button>
+        {alert()}
         <Link to="/login/student">
           <p className="mt-5 mb-3 text-danger">{"Login"}</p>
         </Link>

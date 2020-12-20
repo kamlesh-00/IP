@@ -87,6 +87,8 @@ app.post("/api/addAdmin", (req, res) => {
         res.json({ success: true, message: "Your account has been saved" });
       }
     });
+  } else {
+    res.json({ success: false, message: "Authentication Failed" });
   }
 });
 
@@ -108,6 +110,8 @@ app.post("/api/admin/addCollege", (req, res) => {
         res.json({ success: true, message: "Your account has been saved" });
       }
     });
+  } else {
+    res.json({ success: false, message: "Authentication failed" });
   }
 });
 
@@ -171,7 +175,9 @@ app.post("/api/addComplaint", (req, res) => {
         $push: { complaints: newComplaint },
       }
     ).catch((err) => console.log(err));
-    res.status(200).json({ message: "Submitted Successfully" });
+    res.json({ success: true, message: "Submitted Successfully" });
+  } else {
+    res.json({ success: false, message: "Authentication Failed" });
   }
 });
 
@@ -181,9 +187,12 @@ app.get("/api/getComplaints", (req, res) => {
       console.log("getComplaintsStudent");
       User.find({ _id: req.user._id }, (err, result) => {
         if (!err) {
-          res
-            .status(200)
-            .json({ id: req.user._id, complaints: result[0].complaints });
+          res.status(200).json({
+            success: true,
+            type: req.user.type,
+            id: req.user._id,
+            complaints: result[0].complaints,
+          });
         }
       }).catch((err) => console.log(err));
     } else if (req.user.type == "college") {
@@ -195,7 +204,14 @@ app.get("/api/getComplaints", (req, res) => {
             resu.complaints.forEach((com) => toSend.push(com));
           });
         }
-        res.status(200).json({ complaints: toSend });
+        res
+          .status(200)
+          .json({
+            success: true,
+            type: req.user.type,
+            id: req.user._id,
+            complaints: toSend,
+          });
       }).catch((err) => console.log(err));
     } else {
       console.log("getComplaintsAdmin");
@@ -208,9 +224,18 @@ app.get("/api/getComplaints", (req, res) => {
             });
           });
         }
-        res.status(200).json({ complaints: toSend });
+        res
+          .status(200)
+          .json({
+            success: true,
+            type: req.user.type,
+            id: req.user._id,
+            complaints: toSend,
+          });
       }).catch((err) => console.log(err));
     }
+  } else {
+    res.status(200).json({ success: false, message: "Authentication failed" });
   }
 });
 

@@ -11,18 +11,20 @@ class StudentHome extends Component {
     this.state = {
       complaints: [],
       logout: false,
+      userType: "",
+      loading: true,
     };
     this.handleLogout = this.handleLogout.bind(this);
     this.handleComplaintSubmit = this.handleComplaintSubmit.bind(this);
   }
 
   handleComplaintSubmit = () => {
-    console.log("here");
     axios
       .get("/api/getComplaints")
       .then((res) => {
-        console.log("Res data: ", res);
-        this.setState({ complaints: res.data.complaints });
+        this.setState({
+          complaints: res.data.complaints,
+        });
       })
       .catch((err) => console.log(err));
   };
@@ -31,7 +33,11 @@ class StudentHome extends Component {
     axios
       .get("/api/getComplaints")
       .then((res) => {
-        this.setState({ complaints: res.data.complaints });
+        this.setState({
+          userType: res.data.type,
+          complaints: res.data.complaints,
+          loading: false,
+        });
       })
       .catch((err) => console.log(err.response));
   }
@@ -53,6 +59,10 @@ class StudentHome extends Component {
     if (this.state.logout) {
       return <Redirect to="/" />;
     }
+    if (this.state.loading) {
+      return <h4 className="center">Loading....</h4>;
+    }
+    console.log(this.state);
     return (
       <React.Fragment>
         <Button color="primary" className="logout" onClick={this.handleLogout}>
@@ -62,7 +72,10 @@ class StudentHome extends Component {
           <div className="row">
             <div className="col-sm-4">
               <div className="box">
-                <ComplaintForm onComplaintSubmit={this.handleComplaintSubmit} />
+                <ComplaintForm
+                  onComplaintSubmit={this.handleComplaintSubmit}
+                  userType={this.state.userType}
+                />
               </div>
             </div>
             <div className="col-sm-8">

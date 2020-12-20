@@ -51,6 +51,7 @@ class Login extends React.Component {
       })
       .catch((err) => {
         if (err) {
+          console.log(err);
           if (err.response.status === 401) {
             this.setState({
               errors: "Wrong Username or Password",

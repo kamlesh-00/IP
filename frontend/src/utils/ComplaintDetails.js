@@ -22,7 +22,9 @@ function ComplaintDetails(props) {
       </Card>
     );
   }
-
+  if (props.complaints.length === 0) {
+    return <h5 className="center">No Complaints Available</h5>;
+  }
   return <Accordion defaultActiveKey="0">{props.complaints.map(a)}</Accordion>;
 }
 
