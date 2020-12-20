@@ -1,13 +1,20 @@
 import React from "react";
-import { Accordion, Card, Button } from "react-bootstrap";
+import { Accordion, Card, Button, Badge } from "react-bootstrap";
 
 function ComplaintDetails(props) {
   function a(ele) {
+    function badge(status) {
+      if (status === "In Progress") {
+        return <Badge variant="secondary">{status}</Badge>;
+      } else if (status === "Completed") {
+        return <Badge variant="success">{status}</Badge>;
+      }
+    }
     return (
       <Card>
         <Card.Header>
           <Accordion.Toggle as={Button} variant="link" eventKey={ele._id}>
-            id: {ele._id} &nbsp;&nbsp; Level: {ele.level}
+            id: {ele._id} | Level: {ele.level} | {badge(ele.status)}
           </Accordion.Toggle>
         </Card.Header>
         <Accordion.Collapse eventKey={ele._id}>
@@ -16,7 +23,6 @@ function ComplaintDetails(props) {
             <br />
             <p>{ele.complaintDetail} </p>
             <b>Status: </b>
-            {ele.status}
           </Card.Body>
         </Accordion.Collapse>
       </Card>

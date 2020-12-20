@@ -1,5 +1,5 @@
 import React from "react";
-import { Button, Form } from "react-bootstrap";
+import { Button, Form, Alert } from "react-bootstrap";
 import axios from "axios";
 import { Redirect } from "react-router-dom";
 
@@ -7,11 +7,13 @@ class ComplaintForm extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      error: "",
       loginStatus: true,
       userType: "",
       level: "",
       category: "",
       complaintDetail: "",
+      complaintId: "",
       collegeName: "",
       collegeId: "",
       collegePassword: "",
@@ -20,7 +22,9 @@ class ComplaintForm extends React.Component {
     };
     this.handleChange = this.handleChange.bind(this);
     this.handleComplaint = this.handleComplaint.bind(this);
+    this.handleComplaintStatus = this.handleComplaintStatus.bind(this);
     this.handleNewCollege = this.handleNewCollege.bind(this);
+    this.handleNewAdmin = this.handleNewAdmin.bind(this);
   }
 
   handleChange(event) {
@@ -57,6 +61,33 @@ class ComplaintForm extends React.Component {
     this.props.onComplaintSubmit();
   }
 
+  handleComplaintStatus(event) {
+    event.preventDefault();
+    axios
+      .post("/api/setComplaintStatus", { complaintId: this.state.complaintId })
+      .then((res) => {
+        if (!res.data.success) {
+          this.setState({
+            loginStatus: false,
+          });
+        } else if (
+          res.data.success &&
+          res.data.message === "Complaint Id not found"
+        ) {
+          this.setState({
+            error: res.data.message,
+          });
+        } else {
+          alert("Complaint Status Changed");
+          this.setState({
+            complaintId: "",
+          });
+        }
+      })
+      .catch((err) => console.log(err));
+    this.props.onComplaintSubmit();
+  }
+
   handleNewCollege(event) {
     event.preventDefault();
     const newCollege = {
@@ -65,7 +96,7 @@ class ComplaintForm extends React.Component {
       password: this.state.collegePassword,
     };
     axios
-      .post("api/admin/addCollege", newCollege)
+      .post("/api/admin/addCollege", newCollege)
       .then((res) => {
         if (!res.data.success) {
           this.setState({
@@ -83,8 +114,6 @@ class ComplaintForm extends React.Component {
       .catch((err) => console.log(err));
   }
 
-  componentWillMount() {}
-
   handleNewAdmin(event) {
     event.preventDefault();
     const newAdmin = {
@@ -92,7 +121,7 @@ class ComplaintForm extends React.Component {
       password: this.state.adminPassword,
     };
     axios
-      .post("api/addAdmin", newAdmin)
+      .post("/api/addAdmin", newAdmin)
       .then((res) => {
         if (!res.data.success) {
           this.setState({
@@ -110,6 +139,13 @@ class ComplaintForm extends React.Component {
   }
 
   render() {
+    function alert(err) {
+      return (
+        <Alert variant="danger" className="mt-5">
+          {err}
+        </Alert>
+      );
+    }
     if (!this.state.loginStatus) {
       return <Redirect to="/unauthorized" />;
     }
@@ -156,17 +192,55 @@ class ComplaintForm extends React.Component {
               value={this.state.complaintDetail}
               onChange={this.handleChange}
             />
-            <Button variant="primary" type="submit" className="">
+            <Button variant="primary" type="submit">
               Submit
             </Button>
           </Form.Group>
         </Form>
       );
     } else if (this.props.userType === "college") {
-      return <p>College Login</p>;
+      return (
+        <Form onSubmit={this.handleComplaintStatus}>
+          <Form.Group controlId="exampleForm.SelectCustom">
+            <h4 className="center">Set status Complete</h4>
+            <br />
+            <Form.Control
+              type="text"
+              name="complaintId"
+              value={this.state.complaintId}
+              placeholder="Enter complaint id"
+              className="mb-2"
+              onChange={this.handleChange}
+            />
+            <Button variant="primary" type="submit">
+              Submit
+            </Button>
+            {alert(this.state.error)}
+          </Form.Group>
+        </Form>
+      );
     } else if (this.props.userType === "admin") {
       return (
         <React.Fragment>
+          <Form onSubmit={this.handleComplaintStatus}>
+            <Form.Group controlId="exampleForm.SelectCustom">
+              <h4 className="center">Set status Complete</h4>
+              <br />
+              <Form.Control
+                type="text"
+                name="complaintId"
+                value={this.state.complaintId}
+                placeholder="Enter complaint id"
+                className="mb-2"
+                onChange={this.handleChange}
+              />
+              <Button variant="primary" type="submit">
+                Submit
+              </Button>
+              {alert(this.state.error)}
+            </Form.Group>
+          </Form>
+          <hr />
           <Form onSubmit={this.handleNewCollege}>
             <Form.Group controlId="exampleForm.SelectCustom">
               <h4 className="center">Register new college</h4>
@@ -197,7 +271,7 @@ class ComplaintForm extends React.Component {
                 value={this.state.collegePassword}
                 onChange={this.handleChange}
               />
-              <Button variant="primary" type="submit" className="">
+              <Button variant="primary" type="submit">
                 Submit
               </Button>
             </Form.Group>
@@ -225,7 +299,7 @@ class ComplaintForm extends React.Component {
                 value={this.state.adminPassword}
                 onChange={this.handleChange}
               />
-              <Button variant="primary" type="submit" className="">
+              <Button variant="primary" type="submit">
                 Submit
               </Button>
             </Form.Group>

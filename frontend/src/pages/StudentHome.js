@@ -60,7 +60,7 @@ class StudentHome extends Component {
       return <Redirect to="/" />;
     }
     if (this.state.loading) {
-      return <h4 className="center">Loading....</h4>;
+      return <h4 className="center mt-5">Loading....</h4>;
     }
     console.log(this.state);
     return (

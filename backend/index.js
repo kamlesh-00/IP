@@ -204,14 +204,12 @@ app.get("/api/getComplaints", (req, res) => {
             resu.complaints.forEach((com) => toSend.push(com));
           });
         }
-        res
-          .status(200)
-          .json({
-            success: true,
-            type: req.user.type,
-            id: req.user._id,
-            complaints: toSend,
-          });
+        res.status(200).json({
+          success: true,
+          type: req.user.type,
+          id: req.user._id,
+          complaints: toSend,
+        });
       }).catch((err) => console.log(err));
     } else {
       console.log("getComplaintsAdmin");
@@ -224,18 +222,63 @@ app.get("/api/getComplaints", (req, res) => {
             });
           });
         }
-        res
-          .status(200)
-          .json({
-            success: true,
-            type: req.user.type,
-            id: req.user._id,
-            complaints: toSend,
-          });
+        res.status(200).json({
+          success: true,
+          type: req.user.type,
+          id: req.user._id,
+          complaints: toSend,
+        });
       }).catch((err) => console.log(err));
     }
   } else {
     res.status(200).json({ success: false, message: "Authentication failed" });
+  }
+});
+
+app.post("/api/setComplaintStatus", (req, res) => {
+  if (req.isAuthenticated()) {
+    if (req.user.type === "college") {
+      const complaintId = req.body.complaintId;
+      const complaintStatus = req.body.complaintStatus;
+      User.findOneAndUpdate(
+        {
+          college_id: req.user.username,
+          "complaints._id": complaintId,
+        },
+        { "complaints.$.status": complaintStatus },
+        { new: true },
+        (err, doc) => {
+          if (err || doc === null) {
+            console.log(err);
+            res.json({ success: true, message: "Complaint Id not found" });
+          } else {
+            console.log("Here");
+            res.json({ success: true, message: "Complaint Status Changed" });
+          }
+        }
+      );
+    } else if (req.user.type === "admin") {
+      const complaintId = req.body.complaintId;
+      const complaintStatus = req.body.complaintStatus;
+      User.findOneAndUpdate(
+        {
+          "complaints._id": complaintId,
+        },
+        { "complaint.$.status": complaintStatus },
+        { new: true },
+        (err, doc) => {
+          if (err || doc === null) {
+            console.log(err);
+            res.json({ success: true, message: "Complaint Id not found" });
+          } else {
+            console.log("Here");
+            res.json({ success: true, message: "Complaint Status Changed" });
+          }
+        }
+      );
+    }
+  } else {
+    res.json({ success: false, message: "Unauthenticated" });
   }
 });
 
