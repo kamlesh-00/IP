@@ -22,6 +22,7 @@ mongoose
     useNewUrlParser: true,
     useUnifiedTopology: true,
     useCreateIndex: true,
+    useFindAndModify: false,
   })
   .then(() => console.log("Connected to Database successfully"))
   .catch((err) => console.log(err));
@@ -35,6 +36,9 @@ app.use(
     secret: process.env.SECRET,
     resave: false,
     saveUninitialized: false,
+    cookie: {
+      maxAge: 6000000,
+    },
   })
 );
 
@@ -168,6 +172,7 @@ app.post("/api/addComplaint", (req, res) => {
       level: req.body.level,
       category: req.body.category,
       complaintDetail: req.body.complaintDetail,
+      status: "In Progress",
     };
     User.updateOne(
       { _id: req.user._id },
@@ -201,7 +206,11 @@ app.get("/api/getComplaints", (req, res) => {
         var toSend = [];
         if (!err) {
           result.forEach((resu) => {
-            resu.complaints.forEach((com) => toSend.push(com));
+            resu.complaints.forEach((com) => {
+              if (com.level !== "University Level") {
+                toSend.push(com);
+              }
+            });
           });
         }
         res.status(200).json({

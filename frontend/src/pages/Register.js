@@ -12,9 +12,10 @@ class Register extends React.Component {
       lastname: "",
       coursename: "",
       academic_year: "",
-      college: "",
-      email: "",
+      collegename: "",
+      department_name: "",
       password: "",
+      id: "",
       collegeDetails: [],
       error: "",
       redirect: false,
@@ -29,7 +30,6 @@ class Register extends React.Component {
     this.setState({
       [event.target.name]: event.target.value,
     });
-    console.log(this.state);
   }
 
   componentWillMount() {
@@ -45,6 +45,21 @@ class Register extends React.Component {
 
   handleSubmit(event) {
     event.preventDefault();
+    if (
+      this.state.firstname.trim() === "" ||
+      this.state.middlename.trim() === "" ||
+      this.state.lastname.trim() === "" ||
+      this.state.id.trim() === "" ||
+      this.state.coursename.trim() === "" ||
+      this.state.collegename.trim() === "" ||
+      this.state.collegename.trim() === "Pick your college" ||
+      this.state.academic_year.trim() === "" ||
+      this.state.password.trim() === "" ||
+      this.state.department_name.trim() === ""
+    ) {
+      this.setState({ error: "All fields are required" });
+      return;
+    }
     const userDetail = {
       name:
         this.state.firstname +
@@ -107,6 +122,7 @@ class Register extends React.Component {
           required={true}
           autoFocus={true}
           name="firstname"
+          value={this.state.firstname}
           onChange={this.handleChange}
         />
         <input
@@ -114,6 +130,7 @@ class Register extends React.Component {
           className="form-control mb-2"
           placeholder="Enter Middle Name"
           name="middlename"
+          value={this.state.middlename}
           onChange={this.handleChange}
         />
         <input
@@ -121,6 +138,7 @@ class Register extends React.Component {
           className="form-control mb-2"
           placeholder="Enter Last Name"
           name="lastname"
+          value={this.state.lastname}
           onChange={this.handleChange}
         />
         <input
@@ -128,11 +146,13 @@ class Register extends React.Component {
           className="form-control mb-2"
           placeholder="Course Name"
           name="coursename"
+          value={this.state.coursename}
           onChange={this.handleChange}
         />
         <select
           className="form-control mb-2"
           name="collegename"
+          value={this.state.collegename}
           onChange={this.handleChange}>
           <option selected>Pick your college</option>
           {this.state.collegeDetails.map(this.collegeInput)}
@@ -141,7 +161,8 @@ class Register extends React.Component {
           type="text"
           className="form-control mb-2"
           placeholder="Department Name"
-          name="coursename"
+          name="department_name"
+          value={this.state.department_name}
           onChange={this.handleChange}
         />
         <input
@@ -149,6 +170,7 @@ class Register extends React.Component {
           className="form-control mb-2"
           placeholder="Academic Year(eg: 2018-2020)"
           name="academic_year"
+          value={this.state.academic_year}
           onChange={this.handleChange}
         />
         <input
@@ -156,6 +178,7 @@ class Register extends React.Component {
           className="form-control mb-2"
           placeholder="Registration Id"
           name="id"
+          value={this.state.id}
           onChange={this.handleChange}
         />
         <input
@@ -163,6 +186,7 @@ class Register extends React.Component {
           className="form-control mb-3"
           placeholder="Password"
           name="password"
+          value={this.state.password}
           onChange={this.handleChange}
         />
         <button className="btn btn-lg btn-primary btn-block" type="submit">

@@ -35,6 +35,12 @@ class Login extends React.Component {
 
   handleSubmit(event) {
     event.preventDefault();
+    if (this.state.id.trim() === "" || this.state.password.trim() === "") {
+      this.setState({
+        errors: "All fields are required",
+      });
+      return;
+    }
     const loginDetails = {
       username: this.state.id,
       password: this.state.password,
@@ -47,11 +53,14 @@ class Login extends React.Component {
             errors: "",
             redirect: true,
           });
+        } else {
+          this.setState({
+            errors: "Wrong Username or Password",
+          });
         }
       })
       .catch((err) => {
         if (err) {
-          console.log(err);
           if (err.response.status === 401) {
             this.setState({
               errors: "Wrong Username or Password",

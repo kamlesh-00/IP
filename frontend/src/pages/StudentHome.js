@@ -62,7 +62,6 @@ class StudentHome extends Component {
     if (this.state.loading) {
       return <h4 className="center mt-5">Loading....</h4>;
     }
-    console.log(this.state);
     return (
       <React.Fragment>
         <Button color="primary" className="logout" onClick={this.handleLogout}>

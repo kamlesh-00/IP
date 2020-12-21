@@ -8,6 +8,8 @@ function ComplaintDetails(props) {
         return <Badge variant="secondary">{status}</Badge>;
       } else if (status === "Completed") {
         return <Badge variant="success">{status}</Badge>;
+      } else if (status === "Rejected") {
+        return <Badge variant="danger">{status}</Badge>;
       }
     }
     return (
@@ -22,7 +24,6 @@ function ComplaintDetails(props) {
             <b>Category: {ele.category}</b>
             <br />
             <p>{ele.complaintDetail} </p>
-            <b>Status: </b>
           </Card.Body>
         </Accordion.Collapse>
       </Card>

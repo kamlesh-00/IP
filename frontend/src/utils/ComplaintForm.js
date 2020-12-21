@@ -3,6 +3,9 @@ import { Button, Form, Alert } from "react-bootstrap";
 import axios from "axios";
 import { Redirect } from "react-router-dom";
 
+const { promisify } = require("util");
+const sleep = promisify(setTimeout);
+
 class ComplaintForm extends React.Component {
   constructor(props) {
     super(props);
@@ -14,6 +17,7 @@ class ComplaintForm extends React.Component {
       category: "",
       complaintDetail: "",
       complaintId: "",
+      complaintStatus: "",
       collegeName: "",
       collegeId: "",
       collegePassword: "",
@@ -33,8 +37,18 @@ class ComplaintForm extends React.Component {
     });
   }
 
-  handleComplaint(event) {
+  async handleComplaint(event) {
     event.preventDefault();
+    if (
+      this.state.level.trim() === "" ||
+      this.state.level.trim() === "Select Level" ||
+      this.state.category.trim() === "" ||
+      this.state.category.trim() === "Select sub-categories" ||
+      this.state.complaintDetail.trim() === ""
+    ) {
+      alert("All fields required");
+      return;
+    }
     const complaintDetails = {
       level: this.state.level,
       category: this.state.category,
@@ -53,18 +67,25 @@ class ComplaintForm extends React.Component {
             category: "",
             complaintDetail: "",
           });
+          this.props.onComplaintSubmit();
         }
       })
       .catch((err) => {
         console.log(err.response);
       });
-    this.props.onComplaintSubmit();
   }
 
   handleComplaintStatus(event) {
     event.preventDefault();
+    if (this.state.complaintId.trim() === "") {
+      alert("All fields required");
+      return;
+    }
     axios
-      .post("/api/setComplaintStatus", { complaintId: this.state.complaintId })
+      .post("/api/setComplaintStatus", {
+        complaintId: this.state.complaintId,
+        complaintStatus: this.state.complaintStatus,
+      })
       .then((res) => {
         if (!res.data.success) {
           this.setState({
@@ -83,13 +104,21 @@ class ComplaintForm extends React.Component {
             complaintId: "",
           });
         }
+        this.props.onComplaintSubmit();
       })
       .catch((err) => console.log(err));
-    this.props.onComplaintSubmit();
   }
 
   handleNewCollege(event) {
     event.preventDefault();
+    if (
+      this.state.collegeId.trim() === "" ||
+      this.state.collegeName.trim() === "" ||
+      this.state.collegePassword.trim() === ""
+    ) {
+      alert("All fields required");
+      return;
+    }
     const newCollege = {
       username: this.state.collegeId,
       name: this.state.collegeName,
@@ -116,6 +145,13 @@ class ComplaintForm extends React.Component {
 
   handleNewAdmin(event) {
     event.preventDefault();
+    if (
+      this.state.adminId.trim() === "" ||
+      this.state.adminPassword.trim() === ""
+    ) {
+      alert("All fields required");
+      return;
+    }
     const newAdmin = {
       username: this.state.adminId,
       password: this.state.adminPassword,
@@ -140,11 +176,11 @@ class ComplaintForm extends React.Component {
 
   render() {
     function alert(err) {
-      return (
-        <Alert variant="danger" className="mt-5">
-          {err}
-        </Alert>
-      );
+      if (err === "") {
+        return null;
+      } else {
+        return <Alert variant="danger">{err}</Alert>;
+      }
     }
     if (!this.state.loginStatus) {
       return <Redirect to="/unauthorized" />;
@@ -202,7 +238,7 @@ class ComplaintForm extends React.Component {
       return (
         <Form onSubmit={this.handleComplaintStatus}>
           <Form.Group controlId="exampleForm.SelectCustom">
-            <h4 className="center">Set status Complete</h4>
+            <h4 className="center">Set complaint Status</h4>
             <br />
             <Form.Control
               type="text"
@@ -212,6 +248,18 @@ class ComplaintForm extends React.Component {
               className="mb-2"
               onChange={this.handleChange}
             />
+            <Form.Control
+              as="select"
+              custom
+              className="mb-2"
+              name="complaintStatus"
+              value={this.state.complaintStatus}
+              onChange={this.handleChange}>
+              <option>Select Status</option>
+              <option>Completed</option>
+              <option>In Progress</option>
+              <option>Rejected</option>
+            </Form.Control>
             <Button variant="primary" type="submit">
               Submit
             </Button>
@@ -224,7 +272,7 @@ class ComplaintForm extends React.Component {
         <React.Fragment>
           <Form onSubmit={this.handleComplaintStatus}>
             <Form.Group controlId="exampleForm.SelectCustom">
-              <h4 className="center">Set status Complete</h4>
+              <h4 className="center">Set complaint Status</h4>
               <br />
               <Form.Control
                 type="text"
@@ -234,6 +282,18 @@ class ComplaintForm extends React.Component {
                 className="mb-2"
                 onChange={this.handleChange}
               />
+              <Form.Control
+                as="select"
+                custom
+                className="mb-2"
+                name="complaintStatus"
+                value={this.state.complaintStatus}
+                onChange={this.handleChange}>
+                <option>Select Status</option>
+                <option>Completed</option>
+                <option>In Progress</option>
+                <option>Rejected</option>
+              </Form.Control>
               <Button variant="primary" type="submit">
                 Submit
               </Button>
